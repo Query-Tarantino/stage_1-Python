@@ -232,6 +232,9 @@ matplotlib is installed, one chart per metric. Copy the `java-*.csv` and `cpp-*.
 implementations, run on the same machine, into `benchmarks/results/` to compare the languages: every table then has a
 row per language and structure.
 
+The analysis of the Python results, the structure chosen for each component and the comparison with Java are in
+[ANALYSIS.md](ANALYSIS.md).
+
 ### Output files
 
 Everything is under `benchmarks/`, which is not versioned:
