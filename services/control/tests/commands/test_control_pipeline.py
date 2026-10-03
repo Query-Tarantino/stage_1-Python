@@ -216,6 +216,23 @@ def test_an_unexpected_download_error_fails_only_its_book(state, crawler, indexe
     assert state.downloaded() == [2]
 
 
+def test_an_error_starting_a_download_fails_only_its_book(state, crawler, indexer):
+    # Such as the datalake failing while looking up whether the book is stored
+    class BrokenLookup(Crawler):
+        def ingest(self, book_id: int) -> Future:
+            if book_id == 1:
+                raise OSError("datalake unreadable")
+            return crawler.ingest(book_id)
+
+    pipeline = ControlPipeline(state, BrokenLookup(), indexer, [1, 2], 1, BOOK_BY_BOOK)
+
+    first = pipeline.run_step()
+    assert first.step == NextStep.download(1)
+    assert first.outcome == Outcome.failure("failed, OSError: datalake unreadable")
+    assert steps(pipeline) == [NextStep.download(2), NextStep.index([2])]
+    assert state.downloaded() == [2]
+
+
 def test_an_unexpected_indexing_error_fails_its_batch_without_marking_its_books(
     state, crawler, indexer
 ):

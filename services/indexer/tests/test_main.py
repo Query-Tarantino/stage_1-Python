@@ -1,3 +1,4 @@
+import json
 import sys
 
 import pytest
@@ -31,3 +32,35 @@ def test_stops_before_any_work_when_a_book_id_is_not_an_integer(monkeypatch, tmp
 
     assert "abc" in str(stop.value.code)
     assert not (tmp_path / "datamarts").exists()
+
+
+def test_indexes_the_books_of_the_command_line_as_one_batch(
+    monkeypatch, tmp_path, capsys
+):
+    (tmp_path / "workload").mkdir()
+    (tmp_path / "workload" / "stopwords.txt").write_text("the\n", encoding="utf-8")
+    (tmp_path / "datalake" / "11").mkdir(parents=True)
+    (tmp_path / "datalake" / "11" / "header.txt").write_text(
+        "Title: Alice\n", encoding="utf-8"
+    )
+    (tmp_path / "datalake" / "11" / "body.txt").write_text(
+        "The whale and the island, the whale.", encoding="utf-8"
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("TARANTINO_DATALAKE", "datalake")
+    monkeypatch.setenv("TARANTINO_DATALAKE_LAYOUT", "book")
+    monkeypatch.setenv("TARANTINO_DATAMARTS", "datamarts")
+    monkeypatch.setenv("TARANTINO_INDEX", "json")
+    monkeypatch.setenv("TARANTINO_METADATA", "sqlite")
+    monkeypatch.setenv("TARANTINO_WORKLOAD", "workload")
+    monkeypatch.setattr(sys, "argv", ["tarantino_indexer", "11", "404"])
+
+    main()
+
+    assert capsys.readouterr().out.splitlines() == [
+        "[INDEXER] 11: 3 unique terms indexed",
+        "[INDEXER] 404: skipped, not found in the datalake",
+    ]
+    assert json.loads(
+        (tmp_path / "datamarts" / "inverted_index.json").read_text(encoding="utf-8")
+    ) == {"and": [11], "island": [11], "whale": [11]}

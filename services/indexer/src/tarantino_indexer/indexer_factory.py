@@ -77,19 +77,19 @@ class IndexerFactory:
     @staticmethod
     def datalake_reader(config: IndexerConfig) -> DatalakeReader:
         return IndexerFactory._option(
-            IndexerFactory.DATALAKE_LAYOUTS, config.datalake_layout, "Datalake Layout"
+            IndexerFactory.DATALAKE_LAYOUTS, config.datalake_layout, "datalake layout"
         )(config)
 
     @staticmethod
     def inverted_index(config: IndexerConfig) -> InvertedIndexStorage:
         return IndexerFactory._option(
-            IndexerFactory.INDEX_STRUCTURES, config.index, "Index Structure"
+            IndexerFactory.INDEX_STRUCTURES, config.index, "index structure"
         )(config)
 
     @staticmethod
     def metadata(config: IndexerConfig) -> MetadataStorage:
         return IndexerFactory._option(
-            IndexerFactory.METADATA_BACKENDS, config.metadata, "Metadata Backend"
+            IndexerFactory.METADATA_BACKENDS, config.metadata, "metadata backend"
         )(config)
 
     @staticmethod

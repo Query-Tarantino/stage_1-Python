@@ -129,6 +129,13 @@ def test_doubles_the_wait_when_the_mirror_does_not_say_how_long(
     assert waits == [1, 2, 4]
 
 
+def test_doubles_the_wait_when_the_mirror_says_it_unreadably(downloader, mirror, waits):
+    mirror.answers.extend([(503, {"Retry-After": "soon"}), (429, {"Retry-After": ""})])
+
+    assert downloader.raw_text(1342) == TEXT
+    assert waits == [1, 2]
+
+
 def test_makes_every_download_wait_while_the_mirror_is_busy(downloader, mirror, waits):
     mirror.answers.append((429, {"Retry-After": "60"}))
     downloader.raw_text(1342)
