@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
-from services.query.commands.search_command import SearchCommand
-from services.query.model.book_metadata import BookMetadata
-from services.query.ports.inverted_index_reader import InvertedIndexReader
-from services.query.ports.metadata_reader import MetadataReader
+from tarantino_query.commands.search_command import SearchCommand
+from tarantino_query.model.book_metadata import BookMetadata
+from tarantino_query.ports.inverted_index_reader import InvertedIndexReader
+from tarantino_query.ports.metadata_reader import MetadataReader
 
 
 class InMemoryIndex(InvertedIndexReader):

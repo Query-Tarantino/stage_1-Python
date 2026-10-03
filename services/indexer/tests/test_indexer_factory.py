@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from services.indexer.indexer_config import IndexerConfig
-from services.indexer.indexer_factory import IndexerFactory
+from tarantino_indexer.indexer_config import IndexerConfig
+from tarantino_indexer.indexer_factory import IndexerFactory
 
 
 def config(workload: Path) -> IndexerConfig:

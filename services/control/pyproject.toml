@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tarantino-control"
+version = "1.0.0"
+description = "Query Tarantino control layer: coordinates the crawler and the indexer and tracks their progress"
+requires-python = ">=3.13"
+dependencies = [
+    "tarantino-crawler",
+    "tarantino-indexer",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

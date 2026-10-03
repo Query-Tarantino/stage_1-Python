@@ -4,51 +4,74 @@ Python implementation of the data layer of a search engine over [Project Gutenbe
 a **datalake** with the raw texts, **datamarts** with metadata and an inverted index, and a minimal **control layer**
 that coordinates downloading and indexing.
 
-The behavior shared with the Java and C# implementations (split rules, datalake layouts, tokenizer,
+The behavior shared with the Java and C++ implementations (split rules, datalake layouts, tokenizer,
 datamart formats, control algorithm and benchmark format) is defined in [SPEC.md](SPEC.md).
 
 ## Repository structure
 
 ```
-services/
-  crawler/    downloads books, splits header/body and stores them in the datalake
-  indexer/    reads the datalake and builds the inverted index and the metadata datamart
-  query/      searches the datamarts
-  control/    orchestrates crawler -> indexer and tracks progress in control files
-workload/     experiment definition shared by every language implementation
-  book_ids.txt     book ids used by the benchmarks (the first N are taken)
-  sample_ids.txt   small sample dataset to test the pipeline quickly
-  stopwords.txt    stopwords removed by the tokenizer
-  queries.txt      fixed query workload for the search benchmark
+services/                one package per service (SPEC §16)
+  crawler/               downloads books, splits header/body and stores them in the datalake
+  indexer/               reads the datalake and builds the inverted index and the metadata datamart
+  query/                 searches the datamarts
+  control/               orchestrates crawler -> indexer and tracks progress in control files
+scripts/                 shared by every language implementation, copied unchanged from the Java repository
+  fill_cache.sh          copies the benchmark dataset from Gutenberg's official mirrors
+  compare_results.py     builds the comparison report from the benchmark results of every language
+workload/                experiment definition shared by every language implementation, copied unchanged too
+  book_ids.txt           candidate ids for the benchmark cache, in order
+  sample_ids.txt         small sample dataset to test the pipeline quickly
+  stopwords.txt          stopwords removed by the tokenizer
+  queries.txt            search benchmark workload, one `<category>: <query>` per line
+  conformance/           conformance cases every implementation must pass (SPEC §13)
 ```
 
-Each service follows the same layout (Python packages):
+Each service is a package with its own `pyproject.toml` and the same layers, with the class names of the Java
+implementation:
 
 ```
 services/<service>/
-  model/      dataclasses and pure domain logic
-  ports/      abstract base classes the service depends on
-  adapters/   implementations of the ports (filesystem, HTTP, SQLite, MongoDB)
-  commands/   use cases
-  __main__.py, config.py, factory.py
-services/<service>/tests/benchmarking/
+  pyproject.toml
+  src/tarantino_<service>/
+    __main__.py, <service>_config.py, <service>_factory.py
+    model/      frozen dataclasses and pure domain logic, grouped by concept
+    ports/      typing.Protocol interfaces the service depends on
+    adapters/   implementations of the ports, one subpackage per functionality and per compared structure
+    commands/   use cases
+  tests/        mirror the packages of what they test
 ```
+
+The control service uses the packages of the crawler and the indexer.
 
 The following directories are **created at runtime** in the project root and are not versioned:
 
 | Directory     | Written by | Content                                                              |
 |---------------|------------|----------------------------------------------------------------------|
-| `datalake/`   | crawler    | `<id>.header.txt` / `<id>.body.txt` in the selected layout           |
+| `datalake/`   | crawler    | header and body files of each book, in the selected layout           |
 | `datamarts/`  | indexer    | `inverted_index.json`, `inverted_index/`, `metadata.db`              |
 | `control/`    | control    | `downloaded_books.txt`, `indexed_books.txt`                          |
-| `benchmarks/` | benchmarks | `<service>/pytest-results.csv`, download cache and temporary data       |
+| `benchmarks/` | benchmarks | download cache, results and temporary data                           |
 
 ## Requirements
 
-- Python 3.12+
+- Python 3.13+
 - pip
-- MongoDB (only for the `mongo` index or metadata backends), e.g.
-  `docker run -d -p 27017:27017 --name tarantino-mongo mongo:7`
+- MongoDB 7.0 (only for the `mongo` index or metadata backends), e.g.
+  `docker run -d -p 27017:27017 --name tarantino-mongo mongo:7.0`
+
+## Installation
+
+From the project root:
+
+```bash
+python -m venv .venv
+source .venv/Scripts/activate      # On Windows Git Bash
+# .\.venv\Scripts\Activate.ps1     # On Windows PowerShell
+# source .venv/bin/activate        # On Linux/Mac
+python -m pip install -r requirements.txt
+```
+
+`requirements.txt` installs the four services in editable mode, with their dependencies, and pytest.
 
 ## Configuration
 
@@ -74,52 +97,25 @@ the same `TARANTINO_INDEX` and `TARANTINO_METADATA`.
 Always run from the project root so the runtime directories are created there.
 
 ```bash
-python -m venv .venv
-source .venv/Scripts/activate      # On Windows Git Bash
-# .\.venv\Scripts\Activate.ps1   # On Windows PowerShell
-# source .venv/bin/activate      # On Linux/Mac
-python -m pip install -r requirements.txt                             # install dependencies
+python -m tarantino_control                     # full pipeline over workload/sample_ids.txt
+python -m tarantino_control book_ids.txt        # candidates from another file of the workload
 
-python -m services.control                                  # full pipeline over workload/sample_ids.txt
-python -m services.control book_ids.txt
+python -m tarantino_crawler 1342 84             # ingest specific books
+python -m tarantino_indexer 1342 84             # index specific books
+python -m tarantino_query adventure island      # search
+```
 
-python -m services.crawler 1342 84                          # ingest specific books
-python -m services.indexer 1342 84                          # index specific books
-python -m services.query "adventure island"
+## Tests
+
+```bash
+python -m pytest                                     # tests of every service
+python -m pytest services/indexer/tests              # tests of one service
+python -m unittest discover -s scripts -t scripts    # tests of the comparison report
 ```
 
 ## Benchmarks
 
-The benchmark suite measures **three dimensions** for each storage strategy:
-
-| Metric | Tool | Description |
-|--------|------|-------------|
-| **Time** | `pytest-benchmark` | Execution latency (ms) with statistical analysis |
-| **RAM** | `tracemalloc` | Peak memory consumption (MB) |
-| **Disk** | `os.walk` | Total storage footprint (KB) |
-
-### Running benchmarks
-
-```bash
-# Run all benchmarks (time only, with statistical analysis)
-pytest services/ --benchmark-only
-
-# Save results for later comparison
-pytest services/ --benchmark-only --benchmark-save=my_run
-
-# Run all benchmarks + generate charts (time + RAM + disk)
-python -m services.utils.plot_benchmarks
-```
-
-Charts are saved to `benchmarks/` (not versioned).
-
-### What is compared
-
-| Comparison                  | Structures                     | Metrics                                                                 | Benchmark                         |
-|-----------------------------|--------------------------------|-------------------------------------------------------------------------|-----------------------------------|
-| Datalake (PDF 3.1)          | `time`, `book`, `batch`        | write throughput, lookup, recovery, RAM, disk overhead                   | crawler `test_datalake_benchmark.py`, `test_datalake_recovery.py` |
-| Inverted index (PDF 4.2)    | `json`, `mongo`, `folders`     | build time, query time, RAM, disk                                       | indexer `test_indexing_benchmark.py`, query `test_query_benchmark.py` |
-| Metadata (PDF 4.1)          | `sqlite`, `mongo`              | insertion speed, RAM, disk                                              | indexer `test_metadata_benchmark.py` |
-
-The rules that keep results comparable across languages (dataset, sizes, iterations, metrics and
-units) are defined in [SPEC.md](SPEC.md#11-benchmarks).
+Not available in this version: the previous pytest-benchmark suite did not follow
+[SPEC.md §11](SPEC.md#11-benchmarks) and was removed. The new benchmarks will live in the test tree of each service,
+under `tests/benchmarking/`, and write `benchmarks/results/python-<service>.csv`, which `scripts/compare_results.py`
+joins with the results of the other languages into the comparison report (matplotlib, optional, adds its charts).

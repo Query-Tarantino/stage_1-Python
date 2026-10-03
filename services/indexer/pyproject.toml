@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tarantino-indexer"
+version = "1.0.0"
+description = "Query Tarantino indexer: builds the inverted index and the metadata datamart from the datalake"
+requires-python = ">=3.13"
+dependencies = [
+    "pymongo>=4.6.0",
+    "regex>=2023.8.8",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,13 @@
+from __future__ import annotations
+
+from typing import Protocol, Set
+
+
+class ControlStateStore(Protocol):
+    def downloaded(self) -> Set[int]: ...
+
+    def indexed(self) -> Set[int]: ...
+
+    def mark_downloaded(self, book_id: int) -> None: ...
+
+    def mark_indexed(self, book_id: int) -> None: ...

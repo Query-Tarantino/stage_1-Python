@@ -1,10 +1,11 @@
 from typing import Set
 
-from services.control.commands.control_pipeline import ControlPipeline
-from services.control.model.next_step import Action, NextStep
-from services.control.ports.control_state_store import ControlStateStore
-from services.control.ports.crawler import Crawler, Outcome
-from services.control.ports.indexer import Indexer
+from tarantino_control.commands.control_pipeline import ControlPipeline
+from tarantino_control.model.next_step import Action, NextStep
+from tarantino_control.model.outcome import Outcome
+from tarantino_control.ports.control_state_store import ControlStateStore
+from tarantino_control.ports.crawler import Crawler
+from tarantino_control.ports.indexer import Indexer
 
 
 class InMemoryState(ControlStateStore):

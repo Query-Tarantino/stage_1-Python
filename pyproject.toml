@@ -1,0 +1,17 @@
+# Tool configuration shared by the four services. Each service is a package of its own, with its
+# pyproject.toml in services/<service>/ (SPEC §16); this file is not a package.
+
+[tool.pytest.ini_options]
+testpaths = [
+    "services/crawler/tests",
+    "services/indexer/tests",
+    "services/query/tests",
+    "services/control/tests",
+]
+pythonpath = [
+    "services/crawler/src",
+    "services/indexer/src",
+    "services/query/src",
+    "services/control/src",
+]
+addopts = ["--import-mode=importlib"]
