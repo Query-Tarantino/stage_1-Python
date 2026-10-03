@@ -8,7 +8,6 @@ version = "1.0.0"
 description = "Query Tarantino crawler: downloads Project Gutenberg books, splits them and stores them in the datalake"
 requires-python = ">=3.13"
 dependencies = [
-    "requests>=2.31.0",
     "truststore>=0.10.0",
 ]
 

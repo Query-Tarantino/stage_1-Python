@@ -15,10 +15,12 @@ def main() -> None:
     # A wrong argument or configuration stops the service before any work (SPEC §15)
     try:
         book_ids = [book_id_of(arg) for arg in sys.argv[1:]]
-        ingest = CrawlerFactory.ingest_command(CrawlerConfig.from_environment())
+        config = CrawlerConfig.from_environment()
+        ingest = CrawlerFactory.ingest_command(config)
     except (OSError, ValueError) as error:
         sys.exit(f"tarantino_crawler: {error}")
 
+    CrawlerFactory.remove_incomplete_writes(config)
     for book_id in book_ids:
         print(line(ingest.execute(book_id)))
 

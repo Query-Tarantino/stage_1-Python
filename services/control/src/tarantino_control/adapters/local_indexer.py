@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Dict, List
+
 from tarantino_control.model.outcome import Outcome
 from tarantino_control.ports.indexer import Indexer
 from tarantino_indexer.commands.index_book_command import IndexBookCommand
@@ -10,8 +12,11 @@ class LocalIndexer(Indexer):
     def __init__(self, index_command: IndexBookCommand):
         self.index_command = index_command
 
-    def index(self, book_id: int) -> Outcome:
-        return self._outcome(self.index_command.execute([book_id])[0])
+    def index(self, book_ids: List[int]) -> Dict[int, Outcome]:
+        return {
+            result.book_id: self._outcome(result)
+            for result in self.index_command.execute(book_ids)
+        }
 
     @staticmethod
     def _outcome(result: IndexResult) -> Outcome:

@@ -77,27 +77,41 @@ python -m pip install -r requirements.txt
 
 Every setting has a default that works when running from the project root. Override them with environment variables:
 
-| Variable                    | Default                     | Values                   |
-|-----------------------------|-----------------------------|--------------------------|
-| `TARANTINO_DATALAKE`        | `datalake`                  | path                     |
-| `TARANTINO_DATAMARTS`       | `datamarts`                 | path                     |
-| `TARANTINO_CONTROL`         | `control`                   | path                     |
-| `TARANTINO_BENCHMARKS`      | `benchmarks`                | path                     |
-| `TARANTINO_WORKLOAD`        | `workload`                  | path                     |
-| `TARANTINO_DATALAKE_LAYOUT` | `time`                      | `time`, `book`, `batch`  |
-| `TARANTINO_INDEX`           | `json`                      | `json`, `mongo`, `folders` |
-| `TARANTINO_METADATA`        | `sqlite`                    | `sqlite`, `mongo`        |
-| `TARANTINO_MONGO_URI`       | `mongodb://localhost:27017` | connection string        |
+| Variable                       | Default                     | Values                     |
+|--------------------------------|-----------------------------|----------------------------|
+| `TARANTINO_DATALAKE`           | `datalake`                  | path                       |
+| `TARANTINO_DATAMARTS`          | `datamarts`                 | path                       |
+| `TARANTINO_CONTROL`            | `control`                   | path                       |
+| `TARANTINO_BENCHMARKS`         | `benchmarks`                | path                       |
+| `TARANTINO_WORKLOAD`           | `workload`                  | path                       |
+| `TARANTINO_DATALAKE_LAYOUT`    | `time`                      | `time`, `book`, `batch`    |
+| `TARANTINO_INDEX`              | `json`                      | `json`, `folders`, `mongo` |
+| `TARANTINO_METADATA`           | `sqlite`                    | `sqlite`, `mongo`          |
+| `TARANTINO_MONGO_URI`          | `mongodb://localhost:27017` | connection string          |
+| `TARANTINO_PARALLEL_DOWNLOADS` | `8`                         | positive integer           |
+| `TARANTINO_INDEX_BATCH`        | `100`                       | positive integer           |
+| `TARANTINO_MIRROR`             | (none)                      | path, or empty             |
 
 The crawler and the indexer must use the same `TARANTINO_DATALAKE_LAYOUT`; the indexer and the query service must use
-the same `TARANTINO_INDEX` and `TARANTINO_METADATA`.
+the same `TARANTINO_INDEX` and `TARANTINO_METADATA`. The control layer downloads up to `TARANTINO_PARALLEL_DOWNLOADS`
+books at once and indexes them in batches of `TARANTINO_INDEX_BATCH`, with one index flush per batch.
+
+Books are downloaded from `mirror.cs.odu.edu`, the official Project Gutenberg mirror of Old Dominion University, never
+from `www.gutenberg.org`, whose robot policy forbids automated access. To ingest many books, copy the plain texts once
+with rsync and point `TARANTINO_MIRROR` to the copy: the crawler then reads `<mirror>/<id>/pg<id>.txt` instead of
+downloading it, and the control layer takes every book of the mirror when no candidates file is given.
+
+```bash
+rsync -av --include='*/' --include='pg[0-9]*.txt' --exclude='*' rsync.ibiblio.org::gutenberg-epub/ mirror/
+TARANTINO_MIRROR=mirror python -m tarantino_control
+```
 
 ## Running
 
 Always run from the project root so the runtime directories are created there.
 
 ```bash
-python -m tarantino_control                     # full pipeline over workload/sample_ids.txt
+python -m tarantino_control                     # full pipeline over workload/sample_ids.txt (or TARANTINO_MIRROR)
 python -m tarantino_control book_ids.txt        # candidates from another file of the workload
 
 python -m tarantino_crawler 1342 84             # ingest specific books

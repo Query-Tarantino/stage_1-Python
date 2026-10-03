@@ -19,14 +19,12 @@ def main(args: List[str]) -> None:
     # A wrong argument or configuration stops the service before any work (SPEC §15)
     try:
         config = ControlConfig.from_environment()
+        crawler = CrawlerConfig.from_environment()
         candidates = ControlFactory.candidates(
-            config, args[0] if len(args) > 0 else None
+            config, crawler, args[0] if len(args) > 0 else None
         )
         pipe = ControlFactory.pipeline(
-            config,
-            CrawlerConfig.from_environment(),
-            IndexerConfig.from_environment(),
-            candidates,
+            config, crawler, IndexerConfig.from_environment(), candidates
         )
     except (OSError, ValueError) as error:
         sys.exit(f"tarantino_control: {error}")

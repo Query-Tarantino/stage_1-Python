@@ -15,4 +15,4 @@ class StepReport:
         return self.step.action == Action.IDLE
 
     def description(self) -> str:
-        return f"{self.step.action.name} {self.step.book_id}: {self.outcome.detail}"
+        return f"{self.step.action.name} {self.step.books()}: {self.outcome.detail}"

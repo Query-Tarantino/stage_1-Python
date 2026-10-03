@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import List, Set
+from typing import List
 
 from tarantino_control.model.whitespace import JAVA_WHITESPACE
 from tarantino_control.ports.control_state_store import ControlStateStore
@@ -15,10 +15,10 @@ class FileControlStateStore(ControlStateStore):
         self._downloaded = root / "downloaded_books.txt"
         self._indexed = root / "indexed_books.txt"
 
-    def downloaded(self) -> Set[int]:
+    def downloaded(self) -> List[int]:
         return self._ids(self._downloaded)
 
-    def indexed(self) -> Set[int]:
+    def indexed(self) -> List[int]:
         return self._ids(self._indexed)
 
     def mark_downloaded(self, book_id: int) -> None:
@@ -28,13 +28,15 @@ class FileControlStateStore(ControlStateStore):
         self._append(self._indexed, book_id)
 
     @classmethod
-    def _ids(cls, file_path: Path) -> Set[int]:
-        ids_set = set()
+    def _ids(cls, file_path: Path) -> List[int]:
+        # In file order, each id once; a line that is not a whole number after
+        # stripping, such as a partially written last line, is ignored (SPEC §9)
+        ids = {}
         for line in cls._lines(file_path):
             stripped = line.strip(JAVA_WHITESPACE)
             if cls.BOOK_ID.fullmatch(stripped):
-                ids_set.add(int(stripped))
-        return ids_set
+                ids[int(stripped)] = None
+        return list(ids)
 
     @staticmethod
     def _lines(file_path: Path) -> List[str]:

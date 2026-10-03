@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Set
 
 from tarantino_crawler.adapters.datalake.book_files import BookFiles
 from tarantino_crawler.model.book.book_text import BookText
@@ -28,6 +28,22 @@ class TimeBasedDatalakeAdapter(DatalakeStorage):
     def paths_of(self, book_id: int) -> Optional[StoredPaths]:
         body = self._body_file(book_id)
         return self._paths_in(body.parent, book_id) if body else None
+
+    def ids_stored_since(self, instant: datetime) -> Set[int]:
+        # The books of the hour directories from the hour that contains the instant on,
+        # decided by the names of the directories alone (SPEC §6)
+        first_hour = instant.astimezone(timezone.utc).strftime("%Y%m%d%H")
+        return {
+            BookFiles.book_id(file, self.BODY_SUFFIX)
+            for day in BookFiles.children(self._root)
+            for hour in BookFiles.children(day)
+            if day.name + hour.name >= first_hour
+            for file in BookFiles.children(hour)
+            if file.name.endswith(self.BODY_SUFFIX)
+        }
+
+    def remove_incomplete_writes(self) -> int:
+        return BookFiles.remove_incomplete_writes(self._root)
 
     def _current_directory(self) -> Path:
         now = self._clock()
