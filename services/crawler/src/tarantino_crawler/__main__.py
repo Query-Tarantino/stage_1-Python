@@ -14,8 +14,8 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
     # A wrong argument or configuration stops the service before any work (SPEC §15)
     try:
-        ingest = CrawlerFactory.ingest_command(CrawlerConfig.from_environment())
         book_ids = [book_id_of(arg) for arg in sys.argv[1:]]
+        ingest = CrawlerFactory.ingest_command(CrawlerConfig.from_environment())
     except (OSError, ValueError) as error:
         sys.exit(f"tarantino_crawler: {error}")
 

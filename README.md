@@ -113,6 +113,9 @@ python -m pytest services/indexer/tests              # tests of one service
 python -m unittest discover -s scripts -t scripts    # tests of the comparison report
 ```
 
+The MongoDB tests use the server of `TARANTINO_MONGO_URI` (`mongodb://localhost:27017` by default), each one in a
+temporary database of its own that is dropped afterwards, and are skipped when no server answers.
+
 ## Benchmarks
 
 Not available in this version: the previous pytest-benchmark suite did not follow

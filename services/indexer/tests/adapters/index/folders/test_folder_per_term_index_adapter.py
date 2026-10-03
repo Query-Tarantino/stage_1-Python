@@ -1,4 +1,6 @@
+import os
 import unicodedata
+from pathlib import Path
 
 import pytest
 
@@ -37,6 +39,51 @@ def test_keeps_apart_terms_that_insensitive_file_systems_would_merge(tmp_path):
     index.flush()
 
     assert len([file for file in tmp_path.rglob("*") if file.is_file()]) == len(terms)
+
+
+def test_rewrites_only_the_term_files_that_gain_an_id(tmp_path):
+    index = FolderPerTermIndexAdapter(tmp_path)
+    index.add(TermOccurrences(5, {"island": 1, "whale": 1}))
+    index.flush()
+    island = tmp_path / "i" / "island.txt"
+    written = island.stat().st_ino
+
+    index.add(TermOccurrences(5, {"island": 1}))
+    index.add(TermOccurrences(84, {"whale": 1}))
+    index.flush()
+
+    assert island.stat().st_ino == written
+    assert (tmp_path / "w" / "whale.txt").read_bytes() == b"5\n84\n"
+
+
+def test_writes_the_terms_in_order_creating_each_folder_once(tmp_path, monkeypatch):
+    written, created = [], []
+    replace, mkdir = os.replace, Path.mkdir
+
+    def recording_replace(source, target):
+        written.append(Path(target).name)
+        replace(source, target)
+
+    def recording_mkdir(directory, *args, **kwargs):
+        created.append(directory.name)
+        mkdir(directory, *args, **kwargs)
+
+    monkeypatch.setattr(os, "replace", recording_replace)
+    monkeypatch.setattr(Path, "mkdir", recording_mkdir)
+    index = FolderPerTermIndexAdapter(tmp_path)
+    index.add(
+        TermOccurrences(5, {"whale": 1, "wave": 1, "island": 1, "écume": 1, "ahab": 1})
+    )
+    index.flush()
+
+    assert written == [
+        "ahab.txt",
+        "island.txt",
+        "wave.txt",
+        "whale.txt",
+        "%C3%A9cume.txt",
+    ]
+    assert created == ["a", "i", "w", "%C3%A9"]
 
 
 def test_a_failed_flush_does_not_fail_the_next_one(tmp_path):

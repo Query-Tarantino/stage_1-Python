@@ -11,7 +11,7 @@ class LocalIndexer(Indexer):
         self.index_command = index_command
 
     def index(self, book_id: int) -> Outcome:
-        return self._outcome(self.index_command.execute(book_id))
+        return self._outcome(self.index_command.execute([book_id])[0])
 
     @staticmethod
     def _outcome(result: IndexResult) -> Outcome:

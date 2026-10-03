@@ -12,13 +12,14 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8")
     # A wrong argument or configuration stops the service before any work (SPEC §15)
     try:
-        index = IndexerFactory.index_command(IndexerConfig.from_environment())
         book_ids = [book_id_of(arg) for arg in sys.argv[1:]]
+        index = IndexerFactory.index_command(IndexerConfig.from_environment())
     except (OSError, ValueError) as error:
         sys.exit(f"tarantino_indexer: {error}")
 
-    for book_id in book_ids:
-        print(line(index.execute(book_id)))
+    # The books of the command line are one batch, with one flush (SPEC §15)
+    for result in index.execute(book_ids):
+        print(line(result))
 
 
 def book_id_of(argument: str) -> int:

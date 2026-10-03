@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+from typing import Optional
 
 from tarantino_indexer.model.book.book import Book
 from tarantino_indexer.ports.datamarts.metadata_storage import MetadataStorage
@@ -24,22 +25,26 @@ class SqliteMetadataAdapter(MetadataStorage):
 
     def __init__(self, database: Path):
         self.database = database
+        self._connection: Optional[sqlite3.Connection] = None
 
     def save(self, book: Book) -> None:
-        self.database.parent.mkdir(parents=True, exist_ok=True)
-        conn = sqlite3.connect(self.database)
-        try:
-            with conn:
-                conn.execute(self.CREATE_TABLE)
-                conn.execute(
-                    self.UPSERT,
-                    (
-                        book.book_id,
-                        book.title,
-                        book.author,
-                        book.language,
-                        book.path.as_posix(),
-                    ),
-                )
-        finally:
-            conn.close()
+        # The same prepared INSERT OR REPLACE on one connection in autocommit mode: each
+        # save is its own transaction, committed before it returns (SPEC §8.2)
+        self._connected().execute(
+            self.UPSERT,
+            (
+                book.book_id,
+                book.title,
+                book.author,
+                book.language,
+                book.path.as_posix(),
+            ),
+        )
+
+    def _connected(self) -> sqlite3.Connection:
+        # Opened at the first save, with SQLite's defaults: no PRAGMA is set
+        if self._connection is None:
+            self.database.parent.mkdir(parents=True, exist_ok=True)
+            self._connection = sqlite3.connect(self.database, autocommit=True)
+            self._connection.execute(self.CREATE_TABLE)
+        return self._connection

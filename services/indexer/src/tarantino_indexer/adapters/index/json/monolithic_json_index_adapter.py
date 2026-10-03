@@ -16,6 +16,9 @@ class MonolithicJsonIndexAdapter(InvertedIndexStorage):
         self.file = file
         self._index_cache: Optional[Dict[str, Set[int]]] = None
 
+    def open(self) -> None:
+        self._index()
+
     def add(self, occurrences: TermOccurrences) -> None:
         for term in occurrences.frequencies.keys():
             self._postings(term).add(occurrences.book_id)
@@ -36,16 +39,15 @@ class MonolithicJsonIndexAdapter(InvertedIndexStorage):
         return self._index_cache
 
     def _stored_index(self) -> Dict[str, Set[int]]:
-        try:
-            data = json.loads(self.file.read_text(encoding="utf-8"))
-            return {k: set(v) for k, v in data.items()}
-        except (json.JSONDecodeError, FileNotFoundError):
-            return {}
+        data = json.loads(self.file.read_text(encoding="utf-8"))
+        return {term: set(ids) for term, ids in data.items()}
 
     def _write_atomically(self) -> None:
         tmp = self.file.with_name(self.file.name + ".tmp")
-        data_to_write = {k: sorted(list(v)) for k, v in sorted(self._index().items())}
-        tmp.write_text(
-            json.dumps(data_to_write, indent=2), encoding="utf-8", newline="\n"
-        )
+        # Sorted terms and ids, compact and in UTF-8, as Java's Jackson writes them
+        data_to_write = {
+            term: sorted(ids) for term, ids in sorted(self._index().items())
+        }
+        content = json.dumps(data_to_write, ensure_ascii=False, separators=(",", ":"))
+        tmp.write_text(content, encoding="utf-8", newline="\n")
         os.replace(tmp, self.file)
