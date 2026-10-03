@@ -5,12 +5,14 @@ from typing import Optional
 
 from tarantino_indexer.model.book.book import Book
 from tarantino_indexer.model.book.book_text import BookText
+from tarantino_indexer.model.whitespace import JAVA_WHITESPACE
 
 
 class HeaderParser:
-    TITLE = re.compile(r"^Title:[ \t]*(.+)$", re.MULTILINE | re.IGNORECASE)
-    AUTHOR = re.compile(r"^Author:[ \t]*(.+)$", re.MULTILINE | re.IGNORECASE)
-    LANGUAGE = re.compile(r"^Language:[ \t]*(.+)$", re.MULTILINE | re.IGNORECASE)
+    # In multiline mode Python's re ends lines only at \n, as SPEC §7 requires
+    TITLE = re.compile(r"^Title:[ \t]*(.+)$", re.MULTILINE)
+    AUTHOR = re.compile(r"^Author:[ \t]*(.+)$", re.MULTILINE)
+    LANGUAGE = re.compile(r"^Language:[ \t]*(.+)$", re.MULTILINE)
 
     def book(self, text: BookText) -> Book:
         return Book(
@@ -24,4 +26,4 @@ class HeaderParser:
     @staticmethod
     def _field(pattern: re.Pattern, text: BookText) -> Optional[str]:
         match = pattern.search(text.header)
-        return match.group(1).strip() if match else None
+        return match.group(1).strip(JAVA_WHITESPACE) if match else None

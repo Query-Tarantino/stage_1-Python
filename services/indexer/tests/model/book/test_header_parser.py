@@ -26,3 +26,18 @@ def test_leaves_missing_fields_as_null():
     assert book.author is None
     assert book.language is None
     assert book.path == body_path
+
+
+def test_matches_field_names_only_as_written():
+    header = "TITLE: Shouted\ntitle: Whispered\nTitle: Written"
+    book = HeaderParser().book(BookText(7, header, "", Path("fake/path")))
+
+    assert book.title == "Written"
+
+
+def test_strips_values_as_java_does():
+    header = "Title: Moby Dick\u00a0 \t\nAuthor:\u3000Herman Melville\u2028"
+    book = HeaderParser().book(BookText(8, header, "", Path("fake/path")))
+
+    assert book.title == "Moby Dick\u00a0"
+    assert book.author == "Herman Melville"

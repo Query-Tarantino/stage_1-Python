@@ -45,5 +45,7 @@ class MonolithicJsonIndexAdapter(InvertedIndexStorage):
     def _write_atomically(self) -> None:
         tmp = self.file.with_name(self.file.name + ".tmp")
         data_to_write = {k: sorted(list(v)) for k, v in sorted(self._index().items())}
-        tmp.write_text(json.dumps(data_to_write, indent=2), encoding="utf-8")
+        tmp.write_text(
+            json.dumps(data_to_write, indent=2), encoding="utf-8", newline="\n"
+        )
         os.replace(tmp, self.file)

@@ -5,6 +5,7 @@ import re
 from tarantino_crawler.model.book.book_text import BookText
 from tarantino_crawler.model.failure.download_exception import DownloadException
 from tarantino_crawler.model.failure.failure_reason import FailureReason
+from tarantino_crawler.model.whitespace import JAVA_WHITESPACE
 
 
 class GutenbergText:
@@ -31,7 +32,7 @@ class GutenbergText:
                 f"Missing Gutenberg markers in book {book_id}",
             )
 
-        header = text[: start_match.start()].strip()
-        body = text[start_match.end() : end_match.start()].strip()
+        header = text[: start_match.start()].strip(JAVA_WHITESPACE)
+        body = text[start_match.end() : end_match.start()].strip(JAVA_WHITESPACE)
 
         return BookText(book_id=book_id, header=header, body=body)

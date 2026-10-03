@@ -18,4 +18,4 @@ class LocalCrawler(Crawler):
         if result.succeeded():
             return Outcome.success(f"stored in {result.paths.body.parent}")
         else:
-            return Outcome.failure(f"skipped, {result.failure}")
+            return Outcome.failure(f"skipped, {result.failure.name}")

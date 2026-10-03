@@ -8,6 +8,7 @@ from tarantino_control.adapters.local_crawler import LocalCrawler
 from tarantino_control.adapters.local_indexer import LocalIndexer
 from tarantino_control.commands.control_pipeline import ControlPipeline
 from tarantino_control.control_config import ControlConfig
+from tarantino_control.model.whitespace import JAVA_WHITESPACE
 from tarantino_crawler.crawler_config import CrawlerConfig
 from tarantino_crawler.crawler_factory import CrawlerFactory
 from tarantino_indexer.indexer_config import IndexerConfig
@@ -35,9 +36,10 @@ class ControlFactory:
     def candidates(config: ControlConfig, file: Optional[str]) -> List[int]:
         filename = file if file is not None else ControlFactory.DEFAULT_CANDIDATES
         lines = ControlFactory._lines(config.workload / filename)
-        return [int(line.strip()) for line in lines if line.strip()]
+        entries = (line.strip(JAVA_WHITESPACE) for line in lines)
+        return [int(entry) for entry in entries if entry]
 
     @staticmethod
     def _lines(file_path: Path) -> List[str]:
-        with open(file_path, "r", encoding="utf-8") as f:
-            return f.readlines()
+        # Only \n ends a line (SPEC §1)
+        return file_path.read_text(encoding="utf-8", newline="").split("\n")

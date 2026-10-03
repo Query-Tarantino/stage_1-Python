@@ -1,4 +1,5 @@
 from functools import reduce
+from operator import iand
 from typing import List, Set
 
 from tarantino_query.model.book_metadata import BookMetadata
@@ -23,18 +24,20 @@ class SearchCommand:
         terms = QueryTerms.of(query, self.stopwords)
         return SearchResult(query, self._books_containing_all(terms))
 
-    def _books_containing_all(self, terms: Set[str]) -> List[BookMetadata]:
-        ids = self._ids_containing_all(terms)
+    def _books_containing_all(self, terms: List[str]) -> List[BookMetadata]:
         books = []
-        for book_id in sorted(ids):
+        for book_id in self._ids_containing_all(terms):
             book = self.metadata.book(book_id)
             if book is not None:
                 books.append(book)
         return books
 
-    def _ids_containing_all(self, terms: Set[str]) -> Set[int]:
+    def _ids_containing_all(self, terms: List[str]) -> List[int]:
+        # Every term, in query order, copied into a set of its own; the first set keeps
+        # only the ids present in each following one, and the result is sorted once
+        # (SPEC §10)
         if not terms:
-            return set()
+            return []
 
-        sets = [self.inverted_index.postings(term) for term in terms]
-        return reduce(lambda x, y: x.intersection(y), sets)
+        sets = (set(self.inverted_index.postings(term)) for term in terms)
+        return sorted(reduce(iand, sets))

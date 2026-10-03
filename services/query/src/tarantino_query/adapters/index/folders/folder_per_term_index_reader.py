@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Set
 
+from tarantino_query.adapters.index.folders.term_files import TermFiles
 from tarantino_query.ports.inverted_index_reader import InvertedIndexReader
 
 
@@ -11,8 +12,7 @@ class FolderPerTermIndexReader(InvertedIndexReader):
     def postings(self, term: str) -> Set[int]:
         if not term:
             return set()
-        first_char = term[0].lower()
-        term_file = self.folder / first_char / f"{term}.txt"
+        term_file = TermFiles.file(self.folder, term)
 
         if not term_file.exists():
             return set()

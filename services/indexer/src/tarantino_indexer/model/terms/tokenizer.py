@@ -1,23 +1,19 @@
 from __future__ import annotations
 
-try:
-    import regex as re_lib
-    _PATTERN = r"\p{L}+"
-    _FLAGS = re_lib.UNICODE
-except ImportError:
-    # Fallback for Windows App Control blocking the regex C-extension DLL
-    import re as re_lib
-    _PATTERN = r"[^\W\d_]+"
-    _FLAGS = re_lib.UNICODE
-
+import re
 from collections import Counter
+from itertools import groupby
 from typing import Dict, Iterator, Set
 
 from tarantino_indexer.model.terms.term_occurrences import TermOccurrences
 
 
 class Tokenizer:
-    TERM = re_lib.compile(_PATTERN, _FLAGS)
+    # A term is a maximal run of letters, Unicode category L (SPEC §7), which is what
+    # str.isalpha() tests. WORD finds them with the standard re module, in the Unicode
+    # version of the runtime; its runs may also hold numeric characters that are not
+    # letters, such as ² or ½, which _letter_runs splits off.
+    WORD = re.compile(r"[^\W\d_]+")
     MIN_TERM_LENGTH = 2
 
     def __init__(self, stopwords: Set[str]):
@@ -30,10 +26,21 @@ class Tokenizer:
         return dict(Counter(self._terms(body)))
 
     def _terms(self, body: str) -> Iterator[str]:
-        for match in self.TERM.finditer(body.lower()):
-            term = match.group()
+        for term in self._letter_runs(body.lower()):
             if self._is_indexable(term):
                 yield term
+
+    @classmethod
+    def _letter_runs(cls, text: str) -> Iterator[str]:
+        for match in cls.WORD.finditer(text):
+            run = match.group()
+            if run.isalpha():
+                yield run
+            else:
+                groups = groupby(run, str.isalpha)
+                yield from (
+                    "".join(letters) for is_letter, letters in groups if is_letter
+                )
 
     def _is_indexable(self, term: str) -> bool:
         return len(term) >= self.MIN_TERM_LENGTH and term not in self.stopwords

@@ -4,11 +4,12 @@ import re
 from pathlib import Path
 from typing import List, Set
 
+from tarantino_control.model.whitespace import JAVA_WHITESPACE
 from tarantino_control.ports.control_state_store import ControlStateStore
 
 
 class FileControlStateStore(ControlStateStore):
-    BOOK_ID = re.compile(r"^\d+$")
+    BOOK_ID = re.compile(r"[0-9]+")
 
     def __init__(self, root: Path):
         self._downloaded = root / "downloaded_books.txt"
@@ -30,8 +31,8 @@ class FileControlStateStore(ControlStateStore):
     def _ids(cls, file_path: Path) -> Set[int]:
         ids_set = set()
         for line in cls._lines(file_path):
-            stripped = line.strip()
-            if cls.BOOK_ID.match(stripped):
+            stripped = line.strip(JAVA_WHITESPACE)
+            if cls.BOOK_ID.fullmatch(stripped):
                 ids_set.add(int(stripped))
         return ids_set
 

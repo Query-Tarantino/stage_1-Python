@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import sys
 from itertools import takewhile
 from typing import List
@@ -12,14 +13,23 @@ from tarantino_indexer.indexer_config import IndexerConfig
 
 
 def main(args: List[str]) -> None:
-    config = ControlConfig.from_environment()
-    candidates = ControlFactory.candidates(config, args[0] if len(args) > 0 else None)
-    pipe = ControlFactory.pipeline(
-        config,
-        CrawlerConfig.from_environment(),
-        IndexerConfig.from_environment(),
-        candidates,
-    )
+    # UTF-8 lines on every operating system (SPEC §15)
+    if isinstance(sys.stdout, io.TextIOWrapper):
+        sys.stdout.reconfigure(encoding="utf-8")
+    # A wrong argument or configuration stops the service before any work (SPEC §15)
+    try:
+        config = ControlConfig.from_environment()
+        candidates = ControlFactory.candidates(
+            config, args[0] if len(args) > 0 else None
+        )
+        pipe = ControlFactory.pipeline(
+            config,
+            CrawlerConfig.from_environment(),
+            IndexerConfig.from_environment(),
+            candidates,
+        )
+    except (OSError, ValueError) as error:
+        sys.exit(f"tarantino_control: {error}")
 
     def step_generator():
         while True:
