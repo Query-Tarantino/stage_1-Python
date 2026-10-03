@@ -9,6 +9,9 @@ testpaths = [
     "services/control/tests",
 ]
 pythonpath = [
+    # The project root, from which the benchmarks of the test trees are imported as
+    # services.<service>.tests.benchmarking, as in Java's org.ulpgc.tarantino.<service>.benchmarking
+    ".",
     "services/crawler/src",
     "services/indexer/src",
     "services/query/src",
