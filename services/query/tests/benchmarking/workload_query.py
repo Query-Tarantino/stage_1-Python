@@ -7,7 +7,6 @@ from tarantino_query.model.whitespace import JAVA_WHITESPACE
 
 @dataclass(frozen=True)
 class WorkloadQuery:
-    # A line of queries.txt: <category>: <query> (SPEC §3)
     category: str
     text: str
 

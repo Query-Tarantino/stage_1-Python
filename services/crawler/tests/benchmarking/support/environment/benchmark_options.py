@@ -15,8 +15,6 @@ T = TypeVar("T")
 
 @dataclass(frozen=True)
 class BenchmarkOptions:
-    # What the variables of a run set (Java's BenchmarkOptions): the sizes, a quick run
-    # to check the setup, and leaving MongoDB out
     QUICK_ITERATIONS: ClassVar[IterationOptions] = IterationOptions(
         warm_up=1, measured=1, seconds=0.2
     )
@@ -40,16 +38,9 @@ class BenchmarkOptions:
         )
 
     def passes(self) -> int:
-        # Two passes in a full run, the second with every structure and size in
-        # reverse order, so that whatever drifts during a run, such as the
-        # temperature or the writes left by the benchmark before, weighs alike on
-        # every structure and size instead of always on the last ones (SPEC §11); one
-        # in a quick run
         return 1 if self.quick else 2
 
     def iterations(self) -> IterationOptions:
-        # A quick run takes 1 warm-up and 1 measured iteration of 0.2 s, to check the
-        # setup: its numbers are not meaningful
         return self.QUICK_ITERATIONS if self.quick else IterationOptions()
 
     def structures(self, declared: Sequence[str], pass_number: int) -> List[str]:

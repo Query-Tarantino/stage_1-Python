@@ -15,13 +15,6 @@ from tarantino_control.ports.indexer import Indexer
 
 
 class ControlPipeline:
-    # Reads the state once and keeps it in memory, so each step costs the same however
-    # many books are done. Up to parallel_downloads books are downloaded at once,
-    # started in candidates order; whichever finishes first is stored, marked as
-    # downloaded and queued for indexing by the pipeline's own thread, the only one that
-    # uses the datalake, the state and the index. Books are indexed in batches, one
-    # index flush per batch, and marked as indexed only after it, while the next
-    # downloads go on (SPEC §9).
     MISSING_OUTCOME = Outcome.failure("no outcome from the indexer")
 
     def __init__(
@@ -90,8 +83,6 @@ class ControlPipeline:
         return None
 
     def _is_done(self, book_id: int) -> bool:
-        # Downloaded in this run or a previous one, or started in this run, which a
-        # failed download is too
         return book_id in self._downloaded or book_id in self._started
 
     def _stored(self, book_id: int, download: Future) -> Outcome:
@@ -135,7 +126,4 @@ class ControlPipeline:
 
     @staticmethod
     def _failed(error: Exception) -> Outcome:
-        # An unexpected error fails only its book or batch, like any other failure,
-        # instead of stopping the run at the same books every time it restarts; they are
-        # retried on the next run
         return Outcome.failure(f"failed, {type(error).__name__}: {error}")

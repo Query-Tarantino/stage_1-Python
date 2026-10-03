@@ -33,9 +33,6 @@ class SearchCommand:
         return books
 
     def _ids_containing_all(self, terms: List[str]) -> List[int]:
-        # Every term, in query order, copied into a set of its own; the first set keeps
-        # only the ids present in each following one, and the result is sorted once
-        # (SPEC §10)
         if not terms:
             return []
 

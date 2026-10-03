@@ -29,7 +29,6 @@ class NextStep:
         return NextStep(Action.IDLE, ())
 
     def books(self) -> str:
-        # The book id, or "<n> books (<first>…<last>)" for a batch of more (SPEC §15)
         if not self.book_ids:
             return ""
         if len(self.book_ids) == 1:

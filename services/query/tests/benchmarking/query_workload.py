@@ -21,8 +21,6 @@ from services.query.tests.benchmarking.workload_query import WorkloadQuery
 
 
 class ConstantMetadata(MetadataReader):
-    # The same record for every id, without any I/O: the index benchmarks do not read
-    # metadata, so only the index is measured (SPEC §11)
     BODY = Path("body.txt")
 
     def book(self, book_id: int) -> Optional[BookMetadata]:

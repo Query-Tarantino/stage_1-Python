@@ -9,10 +9,6 @@ from tarantino_indexer.model.terms.term_occurrences import TermOccurrences
 
 
 class Tokenizer:
-    # A term is a maximal run of letters, Unicode category L (SPEC §7), which is what
-    # str.isalpha() tests. WORD finds them with the standard re module, in the Unicode
-    # version of the runtime; its runs may also hold numeric characters that are not
-    # letters, such as ² or ½, which _letter_runs splits off.
     WORD = re.compile(r"[^\W\d_]+")
     MIN_TERM_LENGTH = 2
 

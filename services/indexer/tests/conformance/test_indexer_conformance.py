@@ -11,8 +11,6 @@ from tarantino_indexer.model.book.book_text import BookText
 from tarantino_indexer.model.book.header_parser import HeaderParser
 from tarantino_indexer.model.terms.tokenizer import Tokenizer
 
-# The cases of TARANTINO_WORKLOAD/conformance (SPEC §13); without the variable,
-# those of this repository
 WORKLOAD = Path(
     os.environ.get("TARANTINO_WORKLOAD") or Path(__file__).parents[4] / "workload"
 )

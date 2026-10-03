@@ -12,8 +12,6 @@ from tarantino_query.model.query_terms import QueryTerms
 from tarantino_query.ports.inverted_index_reader import InvertedIndexReader
 from tarantino_query.ports.metadata_reader import MetadataReader
 
-# The cases of TARANTINO_WORKLOAD/conformance (SPEC §13); without the variable,
-# those of this repository
 WORKLOAD = Path(
     os.environ.get("TARANTINO_WORKLOAD") or Path(__file__).parents[4] / "workload"
 )

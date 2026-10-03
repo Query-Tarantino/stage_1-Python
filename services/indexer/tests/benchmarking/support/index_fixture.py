@@ -26,8 +26,6 @@ from services.crawler.tests.benchmarking.support.environment.benchmark_paths imp
 
 
 class IndexFixture:
-    # Books of the cache read, split, tokenized and indexed as the indexer does, without
-    # a datalake in between (SPEC §11)
 
     def __init__(self, dataset: BenchmarkDataset, tokenizer: Tokenizer):
         self.dataset = dataset
@@ -59,8 +57,6 @@ class IndexFixture:
         return [self._header_parser.book(self._book_text(book_id)) for book_id in ids]
 
     def vocabulary_size(self, ids: Sequence[int]) -> int:
-        # Distinct terms of the books, which every index structure must hold once
-        # they are indexed
         vocabulary: Set[str] = set()
         for book_id in ids:
             vocabulary |= self.terms(book_id)

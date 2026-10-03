@@ -12,7 +12,6 @@ class MetadataInsertionBenchmark(Benchmark):
     STRUCTURES = ("sqlite", "mongo")
 
     def setup_trial(self) -> None:
-        # The headers are parsed before timing (SPEC §11)
         self._fixture = IndexFixture.from_environment()
         self._store = BenchmarkStore.for_metadata(
             self.structure, f"metadata-insert-{self.structure}-{self.books}"
@@ -24,7 +23,6 @@ class MetadataInsertionBenchmark(Benchmark):
 
     @whole_run()
     def bulk_insertion_time(self) -> None:
-        # Creating the backend, opening it and saving the N books one by one
         self._fixture.save(self._store.metadata(), self._books)
 
     def teardown_trial(self) -> None:

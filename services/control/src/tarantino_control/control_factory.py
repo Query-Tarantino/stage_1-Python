@@ -28,10 +28,7 @@ class ControlFactory:
     ) -> ControlPipeline:
         ingest = CrawlerFactory.ingest_command(crawler)
         index = IndexerFactory.index_command(indexer)
-        # Once what an interrupted run left in the datalake is removed (SPEC §6)
         CrawlerFactory.remove_incomplete_writes(crawler)
-        # A thread per download, at most parallel_downloads: waiting on the network
-        # releases the GIL (SPEC §9)
         downloads = ThreadPoolExecutor(
             max_workers=config.parallel_downloads, thread_name_prefix="download"
         )
@@ -48,9 +45,6 @@ class ControlFactory:
     def candidates(
         config: ControlConfig, crawler: CrawlerConfig, file: Optional[str]
     ) -> List[int]:
-        # The ids of the workload file given, in order; without one, every book of the
-        # local mirror in ascending id order when there is a mirror, or else the sample
-        # dataset (SPEC §9)
         if file is None and crawler.mirror is not None:
             return CrawlerFactory.mirror_book_ids(crawler)
         filename = file if file is not None else ControlFactory.DEFAULT_CANDIDATES
@@ -60,5 +54,4 @@ class ControlFactory:
 
     @staticmethod
     def _lines(file_path: Path) -> List[str]:
-        # Only \n ends a line (SPEC §1)
         return file_path.read_text(encoding="utf-8", newline="").split("\n")

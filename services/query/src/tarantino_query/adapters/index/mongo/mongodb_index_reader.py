@@ -11,6 +11,5 @@ class MongodbIndexReader(InvertedIndexReader):
         self._collection = MongoDatabases.database(uri)[self.COLLECTION]
 
     def postings(self, term: str) -> Set[int]:
-        # One find by term on every lookup, reading the whole document (SPEC §8.1)
         document = self._collection.find_one({"term": term})
         return set(document["postings"]) if document else set()

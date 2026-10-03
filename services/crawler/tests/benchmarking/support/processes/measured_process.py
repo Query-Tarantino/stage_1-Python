@@ -19,10 +19,6 @@ from services.crawler.tests.benchmarking.support.processes.process_result import
 
 
 class MeasuredProcess:
-    # The process that measures one configuration, as a JMH fork (SPEC §11): it runs
-    # the hooks of the trial around the iterations of the measured method and writes
-    # what it measured to a file, so that the run reads it whatever the benchmark
-    # prints.
 
     @staticmethod
     def command(

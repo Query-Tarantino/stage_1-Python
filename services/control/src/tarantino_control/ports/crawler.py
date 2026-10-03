@@ -7,7 +7,6 @@ from tarantino_control.model.outcome import Outcome
 
 
 class Download(Protocol):
-    # A finished download, or a book already in the datalake, waiting to be stored
     def store(self) -> Outcome: ...
 
 

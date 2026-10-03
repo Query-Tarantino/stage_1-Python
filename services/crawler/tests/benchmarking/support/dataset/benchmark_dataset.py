@@ -11,9 +11,6 @@ from services.crawler.tests.benchmarking.support.environment.benchmark_paths imp
 
 
 class BenchmarkDataset:
-    # The books of the cache, in cache order: the dataset of size N is the first N,
-    # and the new books are positions 1001 to 1100 (SPEC §11). It is also the
-    # downloader of the benchmarks, which never touch the network.
     NEW_BOOKS = 100
     NEW_BOOKS_OFFSET = 1000
 

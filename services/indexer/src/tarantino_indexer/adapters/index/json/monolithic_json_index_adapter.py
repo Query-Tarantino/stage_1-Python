@@ -44,7 +44,6 @@ class MonolithicJsonIndexAdapter(InvertedIndexStorage):
 
     def _write_atomically(self) -> None:
         tmp = self.file.with_name(self.file.name + ".tmp")
-        # Sorted terms and ids, compact and in UTF-8, as Java's Jackson writes them
         data_to_write = {
             term: sorted(ids) for term, ids in sorted(self._index().items())
         }

@@ -28,12 +28,9 @@ class SqliteMetadataReader(MetadataReader):
 
     @staticmethod
     def _literal(author: str) -> str:
-        # The author as a LIKE pattern that matches it literally: its \, % and _ are
-        # escaped with \ (SPEC §8.2)
         return author.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
     def _books(self, query: str, params: tuple) -> List[BookMetadata]:
-        # Without metadata.db there are no books, and it is not created (SPEC §8.2)
         if self._connection is None and not self.database.exists():
             return []
         rows = self._connected().execute(query, params).fetchall()
@@ -42,7 +39,6 @@ class SqliteMetadataReader(MetadataReader):
         ]
 
     def _connected(self) -> sqlite3.Connection:
-        # One connection, opened at the first query and then reused (SPEC §8.2)
         if self._connection is None:
             self._connection = sqlite3.connect(self.database, autocommit=True)
         return self._connection

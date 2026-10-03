@@ -16,7 +16,6 @@ def line(book: BookMetadata) -> str:
 
 
 def field(value: Optional[str]) -> str:
-    # A missing field is written null, as Java prints it (SPEC §15)
     return "null" if value is None else value
 
 
@@ -27,11 +26,9 @@ def print_result(result: SearchResult) -> None:
 
 
 def main() -> None:
-    # UTF-8 lines on every operating system (SPEC §15)
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8")
     args = sys.argv[1:]
-    # A wrong configuration stops the service before any work (SPEC §15)
     try:
         search = QueryFactory.search_command(QueryConfig.from_environment())
     except (OSError, ValueError) as error:

@@ -28,7 +28,6 @@ class IndexBookCommand:
         self.metadata = metadata
 
     def execute(self, book_ids: List[int]) -> List[IndexResult]:
-        # Indexes the books, flushing the inverted index once for all (SPEC §9)
         results = [self._add(book_id) for book_id in book_ids]
         if any(result.indexed for result in results):
             self.inverted_index.flush()

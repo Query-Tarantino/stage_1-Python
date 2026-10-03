@@ -18,7 +18,6 @@ from services.crawler.tests.benchmarking.support.processes.benchmark_passes impo
 from services.crawler.tests.benchmarking.support.results.metric import Metric
 from services.crawler.tests.benchmarking.support.results.result_row import ResultRow
 
-# Measured processes import the benchmarks from the project root, as a run does
 PROJECT_ROOT = Path(__file__).parents[6]
 
 
@@ -54,8 +53,6 @@ class Failing(Benchmark):
 
 @pytest.fixture
 def scratch(tmp_path, monkeypatch):
-    # The processes import what this one does, also when the services are not
-    # installed and only pytest's pythonpath finds them
     monkeypatch.setenv("PYTHONPATH", os.pathsep.join(sys.path))
     monkeypatch.setenv("TARANTINO_BENCHMARKS", str(tmp_path))
     monkeypatch.chdir(PROJECT_ROOT)

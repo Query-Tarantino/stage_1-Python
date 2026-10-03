@@ -14,18 +14,12 @@ from tarantino_query.commands.search_command import SearchCommand
 from tarantino_query.query_config import QueryConfig
 from tarantino_query.query_factory import QueryFactory
 
-# The whole pipeline over a local mirror of three small books: with no candidates file
-# the control service takes every book of the mirror, three at once, into the datalake
-# and indexes them in batches, and the query service finds them by their words.
-# Downloads finish in any order, so only the batches' sizes are fixed (SPEC §17).
 PARALLEL_DOWNLOADS = 3
 INDEX_BATCH = 2
 UNUSED_MONGO = "mongodb://localhost:27017"
 
 
 def gutenberg_text(title: str, author: str, language: str, body: str) -> str:
-    # A book as Project Gutenberg publishes it: header, start marker, body, end marker
-    # and footer, with CRLF
     marker = f" OF THE PROJECT GUTENBERG EBOOK {title.upper()} ***"
     return "\r\n".join(
         [

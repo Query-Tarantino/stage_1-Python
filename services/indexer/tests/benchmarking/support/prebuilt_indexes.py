@@ -12,10 +12,6 @@ from services.indexer.tests.benchmarking.support.index_fixture import IndexFixtu
 
 
 class PrebuiltIndexes:
-    # Indexes of the first N books, built once per benchmark run and shared by every
-    # process of the benchmarks that only need them as a starting point. Their content
-    # is deterministic, so reusing them changes no result. A marker file says that one
-    # is complete.
     PREFIX = "prebuilt-"
     BUILT_MARKER = ".built"
     WORKING_MARKER = ".working"
@@ -34,10 +30,6 @@ class PrebuiltIndexes:
     def working_copy_of(
         prebuilt: BenchmarkStore, index: str, books: int
     ) -> BenchmarkStore:
-        # A copy for the benchmarks that update it, made once per run and shared by
-        # every process and method, which put it back to the prebuilt index before each
-        # run (SPEC §11) instead of copying it whole: for folders that is hundreds of
-        # thousands of files
         store = PrebuiltIndexes._working_store(index, books)
         marker = PrebuiltIndexes._marker(index, books, PrebuiltIndexes.WORKING_MARKER)
         if not marker.exists():
@@ -74,7 +66,6 @@ class PrebuiltIndexes:
 
     @staticmethod
     def _delete_store_of(entry: Path) -> None:
-        # A marker names the store it completes: prebuilt-<index>-<books>.<kind>
         name = entry.name
         for kind in (PrebuiltIndexes.BUILT_MARKER, PrebuiltIndexes.WORKING_MARKER):
             if name.endswith(kind):

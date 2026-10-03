@@ -31,8 +31,6 @@ class Storing(Download):
 
 
 class RecordingCrawler(Crawler):
-    # Downloads that finish at once, in the order they start; a download runs until the
-    # pipeline stores it
     def __init__(self):
         self.started: List[int] = []
         self.stored = 0
@@ -217,7 +215,6 @@ def test_an_unexpected_download_error_fails_only_its_book(state, crawler, indexe
 
 
 def test_an_error_starting_a_download_fails_only_its_book(state, crawler, indexer):
-    # Such as the datalake failing while looking up whether the book is stored
     class BrokenLookup(Crawler):
         def ingest(self, book_id: int) -> Future:
             if book_id == 1:

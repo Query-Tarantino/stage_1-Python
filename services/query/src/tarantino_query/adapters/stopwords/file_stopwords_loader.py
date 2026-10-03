@@ -14,5 +14,4 @@ class FileStopwordsLoader(StopwordsLoader):
         return {entry for entry in entries if entry}
 
     def _lines(self) -> List[str]:
-        # Only \n ends a line (SPEC §1)
         return self.file.read_text(encoding="utf-8", newline="").split("\n")

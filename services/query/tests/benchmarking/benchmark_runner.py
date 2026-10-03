@@ -19,8 +19,6 @@ from services.query.tests.benchmarking.query_time_benchmark import QueryTimeBenc
 
 SERVICE = "query"
 BENCHMARKS = [IndexOpenBenchmark, MetadataQueryBenchmark, QueryTimeBenchmark]
-# query_time gives query_time_p99 too, from the same samples; query_time_<category>
-# comes from the benchmark itself, one sample per measured second
 METRICS = {
     "index_open_time": Metric.as_measured("index_open_time", "ms"),
     "book_by_id_time": Metric.as_measured("book_by_id_time", "µs/op"),

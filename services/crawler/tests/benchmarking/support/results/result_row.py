@@ -9,8 +9,6 @@ from typing import ClassVar
 class ResultRow:
     LANGUAGE: ClassVar[str] = "python"
     CSV_HEADER: ClassVar[str] = "language,structure,metric,n_books,value,error,unit"
-    # error is the half-width of this confidence interval of the mean of the samples
-    # (SPEC §11)
     CONFIDENCE: ClassVar[float] = 0.95
 
     structure: str

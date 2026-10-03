@@ -73,7 +73,6 @@ def test_repeats_an_operation_for_the_iteration_and_divides_the_time_by_them():
         RecordedHooks(), lambda: operations.append(1), SHORT
     )
 
-    # A mean time per operation, far below the 10 ms of the iteration
     assert len(operations) > 100
     assert 0 < samples[SCORE][0] < 10_000 / 100
 

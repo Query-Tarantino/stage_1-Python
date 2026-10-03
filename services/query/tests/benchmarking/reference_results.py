@@ -8,8 +8,6 @@ ID_SEPARATOR = ","
 
 
 class ReferenceResults:
-    # The expected ids of each query, one <query>\t<id>,<id>… line per query, cached
-    # once per run for every process
 
     @staticmethod
     def read(file: Path) -> Dict[str, List[int]]:

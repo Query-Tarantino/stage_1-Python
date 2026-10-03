@@ -26,9 +26,6 @@ from services.crawler.tests.benchmarking.support.results.run_results import (
 
 
 class BenchmarkPasses:
-    # Runs the benchmarks of a service as JMH's Runner does: one operating-system
-    # process per benchmark, structure, size and pass, one after the other (SPEC §11).
-    # A process that fails stops the run, so that no results are written.
 
     def __init__(
         self,

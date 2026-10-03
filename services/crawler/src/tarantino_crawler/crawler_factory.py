@@ -40,8 +40,6 @@ class CrawlerFactory:
 
     @staticmethod
     def remove_incomplete_writes(config: CrawlerConfig) -> None:
-        # Run once before ingesting, so that an interrupted run leaves nothing behind
-        # (SPEC §6)
         removed = CrawlerFactory.datalake(config).remove_incomplete_writes()
         if removed > 0:
             print(
@@ -57,7 +55,6 @@ class CrawlerFactory:
 
     @staticmethod
     def mirror_book_ids(config: CrawlerConfig) -> List[int]:
-        # Every book of the local mirror of the configuration, in ascending id order
         return LocalMirrorDownloader(config.mirror).book_ids()
 
     @staticmethod

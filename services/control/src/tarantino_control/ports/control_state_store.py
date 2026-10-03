@@ -4,7 +4,6 @@ from typing import List, Protocol
 
 
 class ControlStateStore(Protocol):
-    # The ids of each control file, in file order and each one once (SPEC §9)
     def downloaded(self) -> List[int]: ...
 
     def indexed(self) -> List[int]: ...

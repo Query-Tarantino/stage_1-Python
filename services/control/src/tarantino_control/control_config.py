@@ -35,5 +35,5 @@ class ControlConfig:
             if number > 0:
                 return number
         except ValueError:
-            pass  # reported below with the offending value
+            pass
         raise ValueError(f"Unknown {name}: {value} (expected a positive integer)")

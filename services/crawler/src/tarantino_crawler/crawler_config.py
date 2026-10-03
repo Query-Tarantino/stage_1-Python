@@ -12,7 +12,6 @@ from tarantino_crawler.model.whitespace import JAVA_WHITESPACE
 class CrawlerConfig:
     datalake: Path
     datalake_layout: str
-    # The local Gutenberg mirror to read books from, or None to download them over HTTP
     mirror: Optional[Path] = None
 
     @staticmethod

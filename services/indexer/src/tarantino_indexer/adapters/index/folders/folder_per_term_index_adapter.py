@@ -21,9 +21,6 @@ class FolderPerTermIndexAdapter(InvertedIndexStorage):
         self._pending.add(occurrences)
 
     def flush(self) -> None:
-        # Terms come in order, so the files of each folder are written together;
-        # each folder is created once, and only the files that gain an id are
-        # rewritten (SPEC §8.1)
         folders: Set[Path] = set()
         for term, ids in self._pending.drain():
             self._merge(TermFiles.file(self.directory, term), ids, folders)

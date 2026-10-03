@@ -30,7 +30,6 @@ def test_joins_the_samples_of_every_process_of_a_configuration():
 
     query_time, p99 = results.rows(METRICS)
 
-    # mean 12, standard deviation 2, t(0.975, 2) = 4.303: 4.303 × 2 / √3 = 4.968
     assert (query_time.metric, query_time.value) == ("query_time", 12.0)
     assert query_time.error == pytest.approx(4.968, abs=1e-3)
     assert (p99.metric, p99.value, p99.unit) == ("query_time_p99", 31.0, "µs/query")

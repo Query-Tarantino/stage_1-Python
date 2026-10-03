@@ -29,8 +29,6 @@ from services.query.tests.benchmarking.reference_results import ReferenceResults
 class QueryTimeBenchmark(Benchmark):
     STRUCTURES = ("json", "folders", "mongo")
     QUERY_TIME_UNIT = "µs/query"
-    # Besides the first opening of each process, which is discarded: for mongo it also
-    # creates the client
     INDEX_MEMORY_SAMPLES = 5
 
     def setup_trial(self) -> None:
@@ -54,8 +52,6 @@ class QueryTimeBenchmark(Benchmark):
 
     @sampled_operation(MICROSECONDS)
     def query_time(self) -> SearchResult:
-        # A random query of any category, timed per category too, so that one run
-        # measures every category (SPEC §11)
         query = random.randrange(len(self._queries))
         category = self._category_of_query[query]
         start = time.perf_counter_ns()
@@ -83,8 +79,6 @@ class QueryTimeBenchmark(Benchmark):
                 )
 
     def _record_index_memory(self) -> None:
-        # Memory retained by the open index once every query is answered (SPEC §11);
-        # the previous one is released first
         self._search = None
         retained, self._search = Heap.retained_by(self._open_and_answer_every_query)
         self.record_sample(
@@ -116,8 +110,6 @@ class QueryTimeBenchmark(Benchmark):
     def _computed_reference_results(
         self, fixture: IndexFixture
     ) -> Dict[str, List[int]]:
-        # The ids of the books, in ascending order, whose terms hold every term of the
-        # query, from the tokenized books of the dataset (SPEC §11)
         terms_of_query = {
             query: set(QueryTerms.of(query, self._stopwords)) for query in self._queries
         }

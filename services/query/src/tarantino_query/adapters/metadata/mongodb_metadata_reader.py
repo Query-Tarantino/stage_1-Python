@@ -20,8 +20,6 @@ class MongodbMetadataReader(MetadataReader):
         return self._book(document) if document else None
 
     def books_by(self, author: str) -> List[BookMetadata]:
-        # A case-insensitive substring: every regular expression metacharacter of the
-        # author is escaped (SPEC §8.2)
         documents = self._collection.find(
             {"author": {"$regex": re.escape(author), "$options": "i"}}
         ).sort("book_id", ASCENDING)

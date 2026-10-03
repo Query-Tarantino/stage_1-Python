@@ -7,9 +7,6 @@ from tarantino_indexer.model.terms.term_occurrences import TermOccurrences
 
 
 class PendingPostings:
-    # Postings added since the last flush, drained in term order: a flush then writes
-    # the terms of each folder together and inserts into MongoDB's term index in key
-    # order, the same way on every run (SPEC §8.1)
 
     def __init__(self):
         self._postings: Dict[str, Set[int]] = defaultdict(set)

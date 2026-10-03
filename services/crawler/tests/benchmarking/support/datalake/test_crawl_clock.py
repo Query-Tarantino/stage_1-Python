@@ -24,5 +24,4 @@ def test_spreads_the_time_layout_over_one_hour_directory_per_hundred_books(tmp_p
         clock.move_to(position)
         datalake.save(BookText(position + 1, "header", "body"))
 
-    # 20250925/23, 20250926/00 and 20250926/01, plus their two day directories
     assert Directories.footprint(tmp_path).directories == 5

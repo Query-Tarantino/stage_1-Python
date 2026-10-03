@@ -35,8 +35,6 @@ class MetadataQueryBenchmark(Benchmark):
         self._ids = fixture.dataset.ids(self.books)
         books = fixture.books(self._ids)
         fixture.save(self._store.metadata(), books)
-        # The distinct authors of the dataset, leaving out books without one, so that
-        # prolific authors are not favoured (SPEC §11)
         self._authors = list(
             dict.fromkeys(book.author for book in books if book.author is not None)
         )

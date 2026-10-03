@@ -39,8 +39,6 @@ class DatalakeFixture:
     def ingest(
         datalake: DatalakeStorage, ids: Sequence[int], downloader: BookDownloader
     ) -> List[StoredPaths]:
-        # As the crawler ingests: skipping stored books, then reading, splitting and
-        # saving the others (SPEC §9)
         ingest = IngestBookCommand(downloader, datalake)
         return [DatalakeFixture._stored(ingest.execute(book_id)) for book_id in ids]
 
@@ -52,7 +50,6 @@ class DatalakeFixture:
         downloader: BookDownloader,
         start: datetime,
     ) -> List[StoredPaths]:
-        # Saved at the simulated download time of each book (SPEC §11)
         clock = CrawlClock(start)
         ingest = IngestBookCommand(
             downloader, DatalakeFixture.datalake(layout, root, clock)

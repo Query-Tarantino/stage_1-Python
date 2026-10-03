@@ -13,7 +13,6 @@ class MongodbMetadataAdapter(MetadataStorage):
         self._collection.create_index("book_id", unique=True)
 
     def save(self, book: Book) -> None:
-        # One replaceOne by book_id, upserted; missing fields are null (SPEC §8.2)
         self._collection.replace_one(
             {"book_id": book.book_id}, self._document(book), upsert=True
         )

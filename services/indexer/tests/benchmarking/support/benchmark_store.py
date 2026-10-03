@@ -25,8 +25,6 @@ from services.indexer.tests.benchmarking.support.store_footprint import (
 
 
 class BenchmarkStore:
-    # The datamarts of a benchmark: a directory of the scratch area and, for mongo, a
-    # database of its own named after it
     MONGO = "mongo"
     FOLDERS = "folders"
     INVERTED_INDEX = "inverted_index"
@@ -76,9 +74,6 @@ class BenchmarkStore:
     def restore_terms_from(
         self, snapshot: BenchmarkStore, touched_terms: Collection[str]
     ) -> None:
-        # Restores the snapshot after an update that only touched the given terms. For
-        # folders and MongoDB only their files or documents are put back, instead of
-        # hundreds of thousands of them; json, a single file, is copied.
         if self._config.index == self.FOLDERS:
             TermFileRestore.restore(
                 snapshot._folder_index(), self._folder_index(), touched_terms
@@ -95,9 +90,6 @@ class BenchmarkStore:
             snapshot.copy_to(self)
 
     def footprint(self) -> StoreFootprint:
-        # Measures the index once it is flushed. MongoDB reports allocated storage, so
-        # its two sizes are equal; a folders index is walked once for its files, sizes
-        # and blocks.
         if self._mongo:
             stored = MongoStores.disk_usage(self.mongo_uri)
             terms = MongoStores.document_count(self.mongo_uri, self.INVERTED_INDEX)

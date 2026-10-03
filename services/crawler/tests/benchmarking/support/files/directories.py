@@ -14,8 +14,6 @@ class Directories:
 
     @staticmethod
     def delete(root: Path) -> None:
-        # The files in parallel, as a folders index holds hundreds of thousands, and
-        # then the directories, each after its contents
         directories, files = Directories._tree(root)
         with ThreadPoolExecutor() as pool:
             list(pool.map(os.unlink, files))
@@ -24,7 +22,6 @@ class Directories:
 
     @staticmethod
     def copy(source: Path, target: Path) -> None:
-        # The directories first, and then the files in parallel
         directories, files = Directories._tree(source)
         for directory in directories:
             os.makedirs(target / os.path.relpath(directory, source), exist_ok=True)
@@ -50,7 +47,6 @@ class Directories:
 
     @staticmethod
     def footprint(root: Path) -> Footprint:
-        # Measured in one walk; directories do not count the root (SPEC §11)
         if not root.exists():
             return Footprint.NONE
         block = os.statvfs(root).f_frsize
@@ -67,8 +63,6 @@ class Directories:
 
     @staticmethod
     def _tree(root: Path) -> Tuple[List[str], List[str]]:
-        # The directories of a tree, each before its contents, and its other entries,
-        # listed in one walk; a file is a tree of its own
         if root.is_file() or root.is_symlink():
             return [], [str(root)]
         directories: List[str] = []

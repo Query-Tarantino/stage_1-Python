@@ -19,10 +19,6 @@ Measure = Tuple[str, str, int]
 
 
 class RunResults:
-    # What the processes of a run measured. Each configuration gets the samples of its
-    # processes in every pass, as a single run forking that many processes would
-    # (SPEC §11); of the rows the benchmarks recorded, exact measures keep the first
-    # process's and samples give their mean.
 
     def __init__(self):
         self._samples: Dict[Configuration, Dict[str, List[float]]] = {}
@@ -39,8 +35,6 @@ class RunResults:
             self._sample_rows.setdefault(self._measure(row), []).append(row)
 
     def rows(self, metrics: Mapping[str, Metric]) -> List[ResultRow]:
-        # The metric of each measured method: its score is the metric, and any other
-        # series of its samples, such as p99, is <metric>_<series>
         return [
             *self._timed_rows(metrics),
             *self._exact_rows.values(),

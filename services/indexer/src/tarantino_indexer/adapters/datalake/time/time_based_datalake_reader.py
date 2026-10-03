@@ -33,7 +33,6 @@ class TimeBasedDatalakeReader(DatalakeReader):
     def _first_file_named(
         self, directory: Path, name: str, depth: int
     ) -> Optional[Path]:
-        # Depth first, down to the book files, stopping at the first match (SPEC §6)
         with os.scandir(directory) as entries:
             for entry in entries:
                 if entry.name == name:

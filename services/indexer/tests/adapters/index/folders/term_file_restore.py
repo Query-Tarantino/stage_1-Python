@@ -9,9 +9,6 @@ from tarantino_indexer.adapters.index.folders.term_files import TermFiles
 
 
 class TermFileRestore:
-    # Puts back the term files of some terms as they are in a snapshot, deleting the
-    # ones it does not have. Files are restored in parallel, and each folder is created
-    # before the first file copied into it.
 
     @staticmethod
     def restore(snapshot: Path, index: Path, terms: Collection[str]) -> None:

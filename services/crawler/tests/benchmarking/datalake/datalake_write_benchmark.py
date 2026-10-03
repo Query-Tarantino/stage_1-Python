@@ -31,7 +31,6 @@ class DatalakeWriteBenchmark(Benchmark):
 
     @whole_run()
     def write_throughput(self) -> None:
-        # Ingesting the N books as the crawler does, into an empty datalake (SPEC §11)
         DatalakeFixture.ingest_as_crawled(
             self.structure,
             self._root,

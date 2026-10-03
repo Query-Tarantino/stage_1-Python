@@ -20,9 +20,6 @@ from services.crawler.tests.benchmarking.support.files.directories import Direct
 
 
 class RecoveryScenario:
-    # Half of the books are ingested; the next one is interrupted after its header is
-    # written, leaving its body as .tmp; one hour later a new run removes incomplete
-    # writes and ingests every book again (SPEC §11, recovery_ok)
     INTERRUPTED_RUN = datetime.fromisoformat("2025-09-25T14:00:00Z")
     RESUMED_RUN = INTERRUPTED_RUN + timedelta(hours=1)
 
@@ -58,8 +55,6 @@ class RecoveryScenario:
         )
 
     def _leftover_files(self, ids: Sequence[int]) -> int:
-        # Files that are neither the header nor the body of a stored book: .tmp files
-        # and orphaned headers
         datalake = self._datalake(self.RESUMED_RUN)
         book_files: List[Path] = []
         for book_id in ids:

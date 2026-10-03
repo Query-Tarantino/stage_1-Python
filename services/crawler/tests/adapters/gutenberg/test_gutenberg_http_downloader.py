@@ -16,8 +16,6 @@ TEXT = "Café *** START"
 
 
 class Mirror(BaseHTTPRequestHandler):
-    # Answers with the statuses and headers queued in answers, and 200 with TEXT when no
-    # answer is left
     def do_GET(self):
         self.server.requests.append(self.path)
         self.server.user_agents.append(self.headers["User-Agent"])
@@ -39,7 +37,6 @@ class Mirror(BaseHTTPRequestHandler):
 def serve() -> ThreadingHTTPServer:
     server = ThreadingHTTPServer(("127.0.0.1", 0), Mirror)
     server.requests, server.user_agents, server.answers = [], [], deque()
-    # Polled often, so that shutting the server down after each test is quick
     serving = threading.Thread(target=server.serve_forever, args=(0.01,), daemon=True)
     serving.start()
     return server
@@ -139,8 +136,6 @@ def test_doubles_the_wait_when_the_mirror_says_it_unreadably(downloader, mirror,
 def test_makes_every_download_wait_while_the_mirror_is_busy(downloader, mirror, waits):
     mirror.answers.append((429, {"Retry-After": "60"}))
     downloader.raw_text(1342)
-    # The clock stands still, so the second download starts while the mirror still asks
-    # to wait
     downloader.raw_text(84)
 
     assert waits == [60, 60]

@@ -30,8 +30,6 @@ class TimeBasedDatalakeAdapter(DatalakeStorage):
         return self._paths_in(body.parent, book_id) if body else None
 
     def ids_stored_since(self, instant: datetime) -> Set[int]:
-        # The books of the hour directories from the hour that contains the instant on,
-        # decided by the names of the directories alone (SPEC §6)
         first_hour = instant.astimezone(timezone.utc).strftime("%Y%m%d%H")
         return {
             BookFiles.book_id(file, self.BODY_SUFFIX)
@@ -57,7 +55,6 @@ class TimeBasedDatalakeAdapter(DatalakeStorage):
     def _first_file_named(
         self, directory: Path, name: str, depth: int
     ) -> Optional[Path]:
-        # Depth first, down to the book files, stopping at the first match (SPEC §6)
         with os.scandir(directory) as entries:
             for entry in entries:
                 if entry.name == name:

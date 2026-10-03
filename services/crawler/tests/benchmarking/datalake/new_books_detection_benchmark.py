@@ -30,8 +30,6 @@ class NewBooksDetectionBenchmark(Benchmark):
     EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
     def setup_trial(self) -> None:
-        # The N books of the dataset end one day before the new ones, which are then
-        # saved at the current time (SPEC §11)
         dataset = BenchmarkDataset.from_environment()
         self._root = BenchmarkPaths.scratch(
             f"datalake-detection-{self.structure}-{self.books}"
@@ -55,8 +53,6 @@ class NewBooksDetectionBenchmark(Benchmark):
         Directories.delete(self._root)
 
     def _store_old_books(self, ids: List[int], dataset: BenchmarkDataset) -> None:
-        # Their simulated download time is also the modification time of each body,
-        # which book and batch read (SPEC §11)
         crawl_start = (
             self._last_run - self.AGE_OF_OLD_BOOKS - CrawlClock.duration_of(len(ids))
         )

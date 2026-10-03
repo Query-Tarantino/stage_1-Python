@@ -10,9 +10,6 @@ from services.crawler.tests.benchmarking.support.harness.benchmark import Benchm
 
 @dataclass(frozen=True)
 class Configuration:
-    # What one process measures: a method of a benchmark, on a structure and a size
-    # (SPEC §11). The benchmark is named as <module>:<class>, to import it in the
-    # process.
     benchmark: str
     method: str
     structure: str

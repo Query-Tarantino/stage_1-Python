@@ -29,8 +29,6 @@ class FileControlStateStore(ControlStateStore):
 
     @classmethod
     def _ids(cls, file_path: Path) -> List[int]:
-        # In file order, each id once; a line that is not a whole number after
-        # stripping, such as a partially written last line, is ignored (SPEC §9)
         ids = {}
         for line in cls._lines(file_path):
             stripped = line.strip(JAVA_WHITESPACE)

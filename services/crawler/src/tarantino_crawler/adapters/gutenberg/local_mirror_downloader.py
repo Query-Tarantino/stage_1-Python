@@ -11,9 +11,6 @@ from tarantino_crawler.ports.book_downloader import BookDownloader
 
 
 class LocalMirrorDownloader(BookDownloader):
-    # Reads books from a local copy of Project Gutenberg's generated collection, made in
-    # bulk with rsync, instead of one HTTP request per book (SPEC §4). Same files, same
-    # failures: a missing book is NOT_FOUND and any other I/O error NETWORK_ERROR.
     BOOK_ID = re.compile(r"[1-9][0-9]{0,8}")
 
     def __init__(self, mirror: Path):
@@ -35,8 +32,6 @@ class LocalMirrorDownloader(BookDownloader):
             ) from error
 
     def book_ids(self) -> List[int]:
-        # The books of the mirror in ascending id order: the directories named by a book
-        # id that hold its text
         with os.scandir(self._mirror) as entries:
             ids = [
                 int(entry.name)

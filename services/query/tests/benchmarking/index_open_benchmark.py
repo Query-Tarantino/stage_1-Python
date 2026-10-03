@@ -25,7 +25,5 @@ class IndexOpenBenchmark(Benchmark):
 
     @whole_run()
     def index_open_time(self) -> SearchResult:
-        # A new reader, holding nothing from previous runs, answers the first query;
-        # the operating system cache and the open MongoDB client are reused (SPEC §11)
         search = QueryWorkload.open_search(self._store, self.structure, self._stopwords)
         return search.execute(self._first_query)

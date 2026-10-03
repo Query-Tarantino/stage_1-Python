@@ -4,9 +4,6 @@ from datetime import datetime, timedelta
 
 
 class CrawlClock:
-    # The clock of a crawl that downloads 100 books per hour: the book at position i
-    # is saved at start + ⌊i / 100⌋ hours (SPEC §11). Called, it gives the instant of
-    # the book at its current position, as the clock of the time layout.
     BOOKS_PER_HOUR = 100
 
     def __init__(self, start: datetime):

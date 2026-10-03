@@ -9,7 +9,6 @@ from tarantino_indexer.model.whitespace import JAVA_WHITESPACE
 
 
 class HeaderParser:
-    # In multiline mode Python's re ends lines only at \n, as SPEC §7 requires
     TITLE = re.compile(r"^Title:[ \t]*(.+)$", re.MULTILINE)
     AUTHOR = re.compile(r"^Author:[ \t]*(.+)$", re.MULTILINE)
     LANGUAGE = re.compile(r"^Language:[ \t]*(.+)$", re.MULTILINE)

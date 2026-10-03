@@ -22,8 +22,6 @@ class MongodbIndexAdapter(InvertedIndexStorage):
         self._pending.add(occurrences)
 
     def flush(self) -> None:
-        # One unordered bulk write with an upsert per affected term, in term order; the
-        # driver splits it into batches of the server's limit (SPEC §8.1)
         updates = [
             UpdateOne(
                 {"term": term},

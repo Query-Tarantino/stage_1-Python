@@ -22,8 +22,6 @@ from tarantino_crawler.ports.book_downloader import BookDownloader
 
 
 class _MirrorRedirects(urllib.request.HTTPRedirectHandler):
-    # Redirects are followed only within the host of the mirror, at most 5: one to any
-    # other host fails before any request is sent there (SPEC §4)
     max_redirections = 5
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -38,11 +36,6 @@ class _MirrorRedirects(urllib.request.HTTPRedirectHandler):
 
 
 class GutenbergHttpDownloader(BookDownloader):
-    # Downloads books from the official Project Gutenberg mirror of Old Dominion
-    # University (SPEC §4), never from www.gutenberg.org, whose robot policy forbids
-    # automated access. The control service downloads several books at once through one
-    # downloader, so when the mirror answers that it is busy (429 or 503) every download
-    # waits as long as it asks before its next request.
     URL_TEMPLATE = "https://mirror.cs.odu.edu/gutenberg-epub/{book_id}/pg{book_id}.txt"
     USER_AGENT = "query-tarantino/1.0 (ULPGC Big Data course project)"
     TIMEOUT = 30
@@ -63,16 +56,12 @@ class GutenbergHttpDownloader(BookDownloader):
         self._sleep = sleep
         self._paused_until = datetime.fromtimestamp(0, timezone.utc)
         self._pause_lock = threading.Lock()
-        # The certificates of the operating system, so that downloads also work behind
-        # antivirus software or proxies that inspect HTTPS
         context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         self._opener = urllib.request.build_opener(
             urllib.request.HTTPSHandler(context=context), _MirrorRedirects()
         )
 
     def raw_text(self, book_id: int) -> str:
-        # Retries while the mirror is busy, waiting what its Retry-After asks or 1, 2,
-        # 4, 8 and 16 seconds
         url = self._url_template.format(book_id=book_id)
         for retries in itertools.count():
             self._wait_for_the_mirror()
@@ -107,7 +96,6 @@ class GutenbergHttpDownloader(BookDownloader):
         try:
             return self._opener.open(request, timeout=self.TIMEOUT)
         except urllib.error.HTTPError as answer:
-            # An answer like any other, with a status that is not 2xx: 404, 429, 503...
             return answer
         except (urllib.error.URLError, http.client.HTTPException, OSError) as error:
             raise DownloadException(
@@ -116,8 +104,6 @@ class GutenbergHttpDownloader(BookDownloader):
             ) from error
 
     def _retry_after(self, response) -> Optional[timedelta]:
-        # The wait asked for by Retry-After, in seconds or as an HTTP date; None without
-        # a readable one
         retry_after = response.headers.get("Retry-After")
         if retry_after is None:
             return None
@@ -136,8 +122,6 @@ class GutenbergHttpDownloader(BookDownloader):
     def _body(response, book_id: int) -> str:
         if response.code == 200:
             try:
-                # Decoded as UTF-8, as Java's HttpClient does: a malformed byte becomes
-                # U+FFFD
                 return response.read().decode("utf-8", errors="replace")
             except (http.client.HTTPException, OSError) as error:
                 raise DownloadException(

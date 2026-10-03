@@ -11,14 +11,12 @@ from tarantino_crawler.model.book.stored_paths import StoredPaths
 
 class BookFiles:
     TEMPORARY_SUFFIX = ".tmp"
-    # Every layout names its files <prefix>header.txt and <prefix>body.txt (SPEC §6)
     HEADER_NAME = "header.txt"
     BODY_NAME = "body.txt"
     EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
     @staticmethod
     def write(paths: StoredPaths, book: BookText) -> StoredPaths:
-        # The header first: a book exists if and only if its body file does (SPEC §6)
         BookFiles._write_atomically(paths.header, book.header)
         BookFiles._write_atomically(paths.body, book.body)
         return paths
@@ -40,8 +38,6 @@ class BookFiles:
 
     @staticmethod
     def modified_since(file: Path, nanoseconds: int) -> bool:
-        # At the full precision the file system keeps: nanoseconds on APFS and ext4
-        # (SPEC §6)
         try:
             return file.stat().st_mtime_ns >= nanoseconds
         except FileNotFoundError:
@@ -53,8 +49,6 @@ class BookFiles:
 
     @staticmethod
     def remove_incomplete_writes(root: Path) -> int:
-        # Every .tmp file, every header whose body does not exist next to it, and every
-        # directory under the root left empty (SPEC §6)
         if not root.is_dir():
             return 0
         incomplete = [
@@ -84,6 +78,5 @@ class BookFiles:
     def _write_atomically(target: Path, content: str) -> None:
         temporary = target.with_name(target.name + BookFiles.TEMPORARY_SUFFIX)
         target.parent.mkdir(parents=True, exist_ok=True)
-        # UTF-8 with \n line endings on every operating system (SPEC §1)
         temporary.write_text(content, encoding="utf-8", newline="\n")
         os.replace(temporary, target)

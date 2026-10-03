@@ -13,7 +13,6 @@ class ResultsFile:
 
     @staticmethod
     def write(service: str, rows: List[ResultRow]) -> Path:
-        # <benchmarks>/results/python-<service>.csv, in UTF-8 (SPEC §11)
         file = (
             BenchmarkPaths.benchmarks()
             / "results"

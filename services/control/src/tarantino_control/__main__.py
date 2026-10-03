@@ -13,10 +13,8 @@ from tarantino_indexer.indexer_config import IndexerConfig
 
 
 def main(args: List[str]) -> None:
-    # UTF-8 lines on every operating system (SPEC §15)
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8")
-    # A wrong argument or configuration stops the service before any work (SPEC §15)
     try:
         config = ControlConfig.from_environment()
         crawler = CrawlerConfig.from_environment()

@@ -28,8 +28,6 @@ class SqliteMetadataAdapter(MetadataStorage):
         self._connection: Optional[sqlite3.Connection] = None
 
     def save(self, book: Book) -> None:
-        # The same prepared INSERT OR REPLACE on one connection in autocommit mode: each
-        # save is its own transaction, committed before it returns (SPEC §8.2)
         self._connected().execute(
             self.UPSERT,
             (
@@ -42,7 +40,6 @@ class SqliteMetadataAdapter(MetadataStorage):
         )
 
     def _connected(self) -> sqlite3.Connection:
-        # Opened at the first save, with SQLite's defaults: no PRAGMA is set
         if self._connection is None:
             self.database.parent.mkdir(parents=True, exist_ok=True)
             self._connection = sqlite3.connect(self.database, autocommit=True)

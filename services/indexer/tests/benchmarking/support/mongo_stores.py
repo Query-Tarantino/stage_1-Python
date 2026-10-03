@@ -8,8 +8,6 @@ from pymongo.uri_parser import parse_uri
 
 
 class MongoStores:
-    # The databases of the benchmarks, each named in the path of its connection string
-    # and reached with a client of its own, outside every timed run
     DEFAULT_INDEX = "_id_"
 
     @staticmethod
@@ -40,8 +38,6 @@ class MongoStores:
         field: str,
         values: Collection[str],
     ) -> None:
-        # Puts back the documents of some values of a unique field as the snapshot has
-        # them, deleting the others
         documents_of_values = {field: {"$in": list(values)}}
         with MongoClient(snapshot_uri) as client:
             target = client[MongoStores._name(target_uri)][collection]
@@ -58,7 +54,6 @@ class MongoStores:
 
     @staticmethod
     def disk_usage(uri: str) -> int:
-        # storageSize + totalIndexSize of every collection after an fsync (SPEC §11)
         with MongoClient(uri) as client:
             client.admin.command("fsync")
             database = client[MongoStores._name(uri)]

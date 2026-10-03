@@ -10,7 +10,6 @@ from services.crawler.tests.benchmarking.support.results.result_row import Resul
 class Metric:
     name: str
     unit: str
-    # The value of the metric from the mean of the samples and the books of the run
     conversion: Callable[[float, int], float]
 
     @staticmethod
@@ -35,7 +34,6 @@ class Metric:
     def row(
         self, structure: str, books: int, score: float, score_error: float
     ) -> ResultRow:
-        # A value derived from a time keeps the relative error of the time (SPEC §11)
         value = self.conversion(score, books)
         error = abs(value * score_error / score)
         return ResultRow(structure, self.name, books, value, error, self.unit)

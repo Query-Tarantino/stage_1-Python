@@ -44,7 +44,6 @@ def gutenberg_text(title: str, body: str) -> str:
 def test_prints_one_line_per_step_until_nothing_is_left_to_do(
     monkeypatch, tmp_path, capsys
 ):
-    # One download at a time, so the steps come in a fixed order
     books = {11: "whale island whale", 84: "island sea", 2000: "rocín flaco galgo"}
     for book_id, body in books.items():
         (tmp_path / "mirror" / str(book_id)).mkdir(parents=True)

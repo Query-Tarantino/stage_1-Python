@@ -34,9 +34,6 @@ def test_splits_terms_at_numeric_characters_that_are_not_letters():
     assert term_occurrences.frequencies == {"ab": 1, "cd": 1, "ef": 1}
 
 
-# Letters, digits, punctuation, combining marks, supplementary letters, numeric
-# characters that are not letters, and characters whose lowercase form depends on
-# context (final sigma) or changes length (dotted I)
 PIECES = [
     "the",
     "The",

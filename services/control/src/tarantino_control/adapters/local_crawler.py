@@ -10,8 +10,6 @@ from tarantino_crawler.commands.ingest_result import IngestResult
 
 
 class LocalCrawler(Crawler):
-    # Looks books up in the caller's thread, downloads them with the given executor and
-    # stores them when asked (SPEC §9)
 
     def __init__(self, ingest_command: IngestBookCommand, downloads: Executor):
         self.ingest_command = ingest_command

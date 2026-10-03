@@ -70,7 +70,6 @@ class RecordingDatalake(DatalakeStorage):
 
 
 class Synchronous(Executor):
-    # Runs every download at once, in the caller's thread
     def submit(self, fn, *args, **kwargs) -> Future:
         future = Future()
         future.set_result(fn(*args, **kwargs))
@@ -78,7 +77,6 @@ class Synchronous(Executor):
 
 
 class Deferred(Executor):
-    # Keeps the downloads until run() is called
     def __init__(self):
         self.pending = []
 

@@ -9,8 +9,6 @@ from services.crawler.tests.benchmarking.support.results.result_row import Resul
 
 @dataclass(frozen=True)
 class ProcessResult:
-    # What one process measured: the samples of its measured method, per series, and
-    # the rows its benchmark recorded. It reaches the run as JSON, NaN errors included.
     samples: Dict[str, List[float]]
     exact_rows: List[ResultRow]
     sample_rows: List[ResultRow]

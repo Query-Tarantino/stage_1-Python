@@ -6,8 +6,6 @@ from pathlib import Path
 
 
 class BenchmarkPaths:
-    # macOS Spotlight skips directories whose name ends in .noindex; elsewhere the name
-    # is just a name (SPEC §11)
     SCRATCH_DIRECTORY = "tmp.noindex"
 
     @staticmethod

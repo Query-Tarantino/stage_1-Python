@@ -24,7 +24,6 @@ class BookBasedDatalakeAdapter(DatalakeStorage):
         return BookFiles.existing(self._paths(book_id))
 
     def ids_stored_since(self, instant: datetime) -> Set[int]:
-        # Every book whose body file was modified at or after the instant (SPEC §6)
         since = BookFiles.nanoseconds(instant)
         return {
             int(directory.name)
