@@ -7,6 +7,63 @@ that coordinates downloading and indexing.
 The behavior shared with the Java and C++ implementations (split rules, datalake layouts, tokenizer,
 datamart formats, control algorithm and benchmark format) is defined in [SPEC.md](SPEC.md).
 
+## Architecture
+
+```mermaid
+flowchart TB
+    gutenberg[("Project Gutenberg<br/>mirror.cs.odu.edu<br/>or local rsync copy")]
+
+    subgraph control_svc["control service"]
+        pipeline["ControlPipeline<br/>parallel downloads,<br/>index batches"]
+    end
+
+    crawler["crawler<br/>download, split<br/>header / body"]
+    indexer["indexer<br/>tokenize, remove stopwords,<br/>build postings"]
+    query["query<br/>AND search"]
+
+    subgraph datalake["datalake/ (one layout)"]
+        dl_time["time<br/>YYYYMMDD/HH/"]
+        dl_book["book<br/>&lt;id&gt;/"]
+        dl_batch["batch<br/>&lt;id div 1000&gt;/"]
+    end
+
+    subgraph datamarts["datamarts"]
+        subgraph index["inverted index (one structure)"]
+            ix_json["json"]
+            ix_folders["folders"]
+            ix_mongo["mongo"]
+        end
+        subgraph metadata["metadata (one backend)"]
+            md_sqlite["sqlite"]
+            md_mongo["mongo"]
+        end
+    end
+
+    state[("control/<br/>downloaded_books.txt<br/>indexed_books.txt")]
+
+    gutenberg --> crawler
+    pipeline -->|"LocalCrawler"| crawler
+    pipeline -->|"LocalIndexer"| indexer
+    pipeline <--> state
+    crawler --> datalake
+    datalake --> indexer
+    indexer --> index
+    indexer --> metadata
+    index --> query
+    metadata --> query
+
+    subgraph bench["benchmarks"]
+        workload["workload/<br/>book_ids, queries,<br/>stopwords, conformance"]
+        runner["benchmark_runner<br/>crawler / indexer / query<br/>100 / 300 / 1 000 books"]
+        report["scripts/compare_results.py<br/>→ benchmarks/report/"]
+        workload --> runner --> report
+    end
+
+    runner -.->|"measures"| datalake
+    runner -.->|"measures"| index
+    runner -.->|"measures"| metadata
+```
+
 ## Repository structure
 
 ```
